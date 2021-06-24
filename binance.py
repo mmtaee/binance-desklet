@@ -14,7 +14,7 @@ COINS = [
     'BTC/USDT',
     'ETH/USDT',
     'TRX/USDT',
-    # 'XMR/USDT',
+    # 'XMR/USDT', # how to create : Binance coin name XMRUSDT to XMR/USDT
 ]
 
 APP_ID = "Binance Prices"
@@ -23,75 +23,23 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ICON = os.path.join(BASE_DIR, 'coin.png')
 
-BUILDER = """
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.16.1 -->
-<interface>
-  <requires lib="gtk+" version="3.10"/>
-  <object class="GtkMenu" id="menu1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <child>
-      <object class="GtkMenuItem" id="menuitem2">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="label" translatable="yes">Show/hide window</property>
-        <property name="use_underline">True</property>
-        <signal name="activate" handler="onShowOrHide" swapped="no"/>
-      </object>
-    </child>
-    <child>
-      <object class="GtkMenuItem" id="menuitem3">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="label" translatable="yes">Quit</property>
-        <property name="use_underline">True</property>
-        <signal name="activate" handler="onQuit" swapped="no"/>
-      </object>
-    </child>
-  </object>
-</interface>
-"""
-
-
 class EntryWindow(Gtk.Window):
 
     def __init__(self):
         Gtk.Window.__init__(self, title="Get Coins Price From Binance")
         self.window_is_hidden = False
-        self.builder = Gtk.Builder()
-        self.builder.add_from_string(BUILDER)
-        self.builder.connect_signals({
-            'onShowOrHide': (self.onShowOrHide),
-            'onQuit': (self.onQuit),
-        })
-        self.menu = self.builder.get_object('menu1')
-        APPIND_SUPPORT = 1
-        try:
-            from gi.repository import AppIndicator3
-        except BaseException:
-            APPIND_SUPPORT = 0
-        if APPIND_SUPPORT == 1:
-            self.ind = AppIndicator3.Indicator.new(
-                APP_ID, ICON,
-                AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
-            self.ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
-            self.ind.set_menu(self.menu)
-        else:
-            self.ind = Gtk.StatusIcon()
-            self.ind.set_from_file(ICON)
-            self.ind.connect('popup-menu', self.onPopupMenu)
+        self.set_property('resizable', False)  
         self.deactive_coins = set()
-        self.label_price = Gtk.Label(label="\n")
         self.get_screen_size()
         self.set_border_width(10)
         self.set_size_request(100, 50)
-        self.set_decorated(False)
         self.set_skip_taskbar_hint(True)
         self.interval = 60
-        self.proxies = {
-            'https': None,
-        }
+        self.proxies = {'https': None}           
+        self.statusIcon = Gtk.StatusIcon()
+        self.statusIcon.connect("activate", self.onIconClick)
+        self.statusIcon.set_from_file(ICON)
+        self.label_price = Gtk.Label(label="\n")
         self.main_view()
         self.update()
 
@@ -204,6 +152,7 @@ class EntryWindow(Gtk.Window):
                     label += f"{unmask[coin['symbol']]} : {float(coin['price'])} $\n"
                     count += 1
             else:
+                self.interval = 3600
                 label += "** No Internet Connection !! **\n"
             label += '</span>'
             child.set_markup(label)
@@ -242,19 +191,9 @@ class EntryWindow(Gtk.Window):
         elif button.get_active() and button.get_label() in self.deactive_coins:
             self.deactive_coins.remove(button.get_label())
 
-    def onPopupMenu(self, icon, button, time):
-        self.menu.popup(None, None, Gtk.StatusIcon.position_menu, icon, button, time)
-
-    def onShowOrHide(self, *args):
-        if self.window_is_hidden:
-            win.show()
-        else:
-            win.hide()
-        self.window_is_hidden = not self.window_is_hidden
-
-    def onQuit(self, *args):
-        Gtk.main_quit()
-
+    def onIconClick(self, *args):
+        self.deiconify()
+        self.present()
 
 if __name__ == "__main__":
     win = EntryWindow()
