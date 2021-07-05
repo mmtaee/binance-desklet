@@ -7,7 +7,7 @@ cd ${basepath}
 INSTALLATION() {
     echo -e "\e[0;36m"You must be root to installing dependencies, copy files to \'/usr/bin\' directory and \'chomd +x to /usr/bin/bianance_desklets/*\'"\e[0m"
     
-    sudo apt install python3 python3-pip libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-3.0 -y
+    sudo apt install python3 python3-pip libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-3.0 gir1.2-appindicator3-0.1 -y
     
     if [    "$?" = "0" ];then
         echo -e "\e[0;32m"Dependencies Installation Was Successful."\e[0m"
