@@ -23,7 +23,9 @@ INSTALLATION() {
     sudo cp $(pwd)/binance.py $(pwd)/coin.png /usr/bin/bianance_desklets
            
     sudo python3 -m venv /usr/bin/bianance_desklets/venv
-       
+    
+    source /usr/bin/bianance_desklets/venv
+    
     pip3 install requests pycairo PyGObject
     
     cp $(pwd)/binance.desktop  $HOME/.config/autostart
